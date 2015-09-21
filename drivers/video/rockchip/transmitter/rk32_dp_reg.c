@@ -7,6 +7,8 @@
  * option) any later version.
  */
 
+#define DEBUG
+
 #include <linux/device.h>
 #include <linux/delay.h>
 #include <linux/io.h>
@@ -358,6 +360,8 @@ int rk32_edp_start_aux_transaction(struct rk32_edp *edp)
 	int timeout_loop = 0;
 	int aux_timeout = 0;
 
+	printk("%s has been called!\n", __func__);
+
 	/* Enable AUX CH operation */
 	val = readl(edp->regs + AUX_CH_CTL_2);
 	val |= AUX_EN;
@@ -442,11 +446,15 @@ int rk32_edp_write_byte_to_dpcd(struct rk32_edp *edp,
 		writel(val, edp->regs + AUX_CH_CTL_1);
 
 		/* Start AUX transaction */
+		printk("%s is calling rk32_edp_start_aux_transaction()\n", __func__);
 		retval = rk32_edp_start_aux_transaction(edp);
 		if (retval == 0)
 			break;
-		else
+		else {
 			dev_dbg(edp->dev, "Aux Transaction fail!\n");
+			printk("write_byte_to_dpcd()\n");
+			printk("retval == %d\n", retval);
+		}
 	}
 
 	return retval;
@@ -482,11 +490,15 @@ int rk32_edp_read_byte_from_dpcd(struct rk32_edp *edp,
 		writel(val, edp->regs + AUX_CH_CTL_1);
 
 		/* Start AUX transaction */
+		printk("%s is calling rk32_edp_start_aux_transaction()\n", __func__);
 		retval = rk32_edp_start_aux_transaction(edp);
 		if (retval == 0)
 			break;
-		else
+		else {
 			dev_dbg(edp->dev, "Aux Transaction fail!\n");
+			printk("read_byte_from_dpcd()\n");
+			printk("retval == %d\n", retval);
+		}
 	}
 
 	/* Read data buffer */
@@ -546,11 +558,15 @@ int rk32_edp_write_bytes_to_dpcd(struct rk32_edp *edp,
 			writel(val, edp->regs + AUX_CH_CTL_1);
 
 			/* Start AUX transaction */
+			printk("%s is calling rk32_edp_start_aux_transaction()\n", __func__);
 			retval = rk32_edp_start_aux_transaction(edp);
 			if (retval == 0)
 				break;
-			else
+			else {
 				dev_dbg(edp->dev, "Aux Transaction fail!\n");
+				printk("write_bytes_to_dpcd()\n");
+				printk("retval == %d\n", retval);
+			}
 		}
 
 		start_offset += cur_data_count;
@@ -603,11 +619,15 @@ int rk32_edp_read_bytes_from_dpcd(struct rk32_edp *edp,
 			writel(val, edp->regs + AUX_CH_CTL_1);
 
 			/* Start AUX transaction */
+			printk("%s is calling rk32_edp_start_aux_transaction()\n", __func__);
 			retval = rk32_edp_start_aux_transaction(edp);
 			if (retval == 0)
 				break;
-			else
+			else {
 				dev_dbg(edp->dev, "Aux Transaction fail!\n");
+				printk("read_bytes_from_dpcd()\n");
+				printk("retval == %d\n", retval);
+			}
 		}
 
 		for (cur_data_idx = 0; cur_data_idx < cur_data_count;
@@ -650,9 +670,13 @@ int rk32_edp_select_i2c_device(struct rk32_edp *edp,
 	writel(val, edp->regs + AUX_CH_CTL_1);
 
 	/* Start AUX transaction */
+	printk("%s is calling rk32_edp_start_aux_transaction()\n", __func__);
 	retval = rk32_edp_start_aux_transaction(edp);
-	if (retval != 0)
+	if (retval != 0) {
 		dev_dbg(edp->dev, "Aux Transaction fail!\n");
+		printk("select_i2c_device()\n");
+		printk("retval == %d\n", retval);
+	}
 
 	return retval;
 }
@@ -687,11 +711,15 @@ int rk32_edp_read_byte_from_i2c(struct rk32_edp *edp,
 		writel(val, edp->regs + AUX_CH_CTL_1);
 
 		/* Start AUX transaction */
+		printk("%s is calling rk32_edp_start_aux_transaction()\n", __func__);
 		retval = rk32_edp_start_aux_transaction(edp);
 		if (retval == 0)
 			break;
-		else
+		else {
 			dev_dbg(edp->dev, "Aux Transaction fail!\n");
+			printk("read_byte_from_i2c()\n");
+			printk("retval == %d\n", retval);
+		}
 	}
 
 	/* Read data */
@@ -744,11 +772,15 @@ int rk32_edp_read_bytes_from_i2c(struct rk32_edp *edp,
 			writel(val, edp->regs + AUX_CH_CTL_1);
 
 			/* Start AUX transaction */
+			printk("%s is calling rk32_edp_start_aux_transaction()\n", __func__);
 			retval = rk32_edp_start_aux_transaction(edp);
 			if (retval == 0)
 				break;
-			else
+			else {
 				dev_dbg(edp->dev, "Aux Transaction fail!\n");
+				printk("read_bytes_from_i2c()\n");
+				printk("retval == %d\n", retval);
+			}
 
 			/* Check if Rx sends defer */
 			val = readl(edp->regs + AUX_RX_COMM);
@@ -1013,6 +1045,9 @@ int rk32_edp_init_video(struct rk32_edp *edp)
 	val = VID_HRES_TH(2) | VID_VRES_TH(0);
 	writel(val, edp->regs + VIDEO_CTL_8);
 
+	dev_dbg(edp->dev, "exec edp_init_video\n");
+	printk("edp_init_video val: %x\n", val);
+
 	return 0;
 }
 
@@ -1204,6 +1239,9 @@ void rk32_edp_start_video(struct rk32_edp *edp)
 	val = readl(edp->regs + VIDEO_CTL_1);
 	val |= VIDEO_EN;
 	writel(val, edp->regs + VIDEO_CTL_1);
+
+	dev_dbg(edp->dev, "exec edp_start_video\n");
+	printk("edp_start_video val: %x\n", val);
 }
 
 int rk32_edp_is_video_stream_on(struct rk32_edp *edp)
